@@ -1,1 +1,67 @@
-<html><title>test</title><body><h1>Test??</h1></body></html>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Goodreads RSS Feed</title>
+  <script>
+  /* Goodreads */
+    fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.goodreads.com%2Fuser%2Fupdates_rss%2F8198766%3Fkey%3DDd_b0FL5w539ocG-fXNxba1boY57c_G7traIX2z6NyHUrhBn&api_key=csdqxkcjyaa5y9bfmi5zfolk4o5ltvxyoarnsilc')
+      .then(response => response.json())
+      .then(data => {
+        const feed = data.items;
+        let output = '';
+        let count = 0;
+        for (let i = 0; i < feed.length; i++) {
+          if (count === 6) {
+            break;
+          }
+          if (feed[i].description.includes("Joshua gave") && count < 6) {
+            let title = feed[i].title.replace("Joshua added '", "").replace("'", "");
+            let description = feed[i].description.replace("Joshua gave", "I gave");
+            output += `
+              <h4><a href="${feed[i].link}" target="_blank">${title}</a></h4>
+              <p>${description}</p>
+            `;
+            count++;
+          }
+        }
+        document.getElementById('goodreads_feed').innerHTML = output;
+      })
+      .catch(error => console.error(error));
+  </script>
+	  
+  <script>
+  /* Discerning History posts */
+    fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fdiscerninghistory.com%2Fauthor%2Fhornj%2Ffeed%2F&api_key=csdqxkcjyaa5y9bfmi5zfolk4o5ltvxyoarnsilc')
+      .then(response => response.json())
+      .then(data => {
+        const feed = data.items;
+        let output = '';
+        let count = 0;
+        for (let i = 0; i < feed.length; i++) {
+          if (count === 6) {
+            break;
+          }
+        count++;
+        output += `
+              <h4><a href="${feed[i].link}" target="_blank">${feed[i].title}</a></h4>
+              <p>${feed[i].description}</p>
+            `;
+        }
+        document.getElementById('blog_feed').innerHTML = output;
+      })
+      .catch(error => console.error(error));
+  </script>
+</head>
+<body>
+	<div id="goodreads">
+		<h3>What I've Been Reading</h3>
+		<div id="goodreads_feed"></div>
+		<p>See all books</p>
+	</div>
+	</div id="blog_posts">
+		<h3>My Recent Blog Posts</h3>
+		<div id="blog_feed"></div>
+		<p>See all posts</p>
+	</div>
+</body>
+</html>
