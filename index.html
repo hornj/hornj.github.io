@@ -1,9 +1,126 @@
 <!DOCTYPE html>
 <html>
-<head>
-  <title>Goodreads RSS Feed</title>
-  <script>
+  <head>
+    <meta charset="UTF-8">
+    <title>Joshua Horn</title>
+	<link rel="preconnect" href="https://fonts.googleapis.com">
+	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+	<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,700;1,400&family=Labrada:ital,wght@0,400;1,600&family=Mrs+Saint+Delafield&display=auto" rel="stylesheet">
+
+    <style>
+      body {
+        font-family: 'EB Garamond', serif;
+        text-align: center;
+		padding-top:3%;
+      }
+	  
+	  h2, h3, h4, h5, h6 {
+		font-family: 'Labrada', serif;
+	  }
+	  
+	  h4 {
+		text-align:left;
+		margin-bottom: -15px;
+	  }
+	  
+	  p {
+		font-size: 18px;
+		text-align:left;
+	  }
+
+      header {
+        background-color: white;
+        padding: 20px;
+		padding-top: 40px;
+      }
+
+      .container {
+        display: flex;
+        flex-wrap: wrap;
+		justify-content: space-evenly;
+		max-width: 1100px;
+		margin-left: auto;
+		margin-right: auto;
+		margin-top: 20px;
+      }
+	  
+	  .tagline {
+		margin-top: -18px;
+	  }
+		
+	  .tagline p {
+		margin: 0px;
+		margin-bottom: 5px;
+		text-align:center;
+	  }
+
+      .column {
+        flex-basis: 30%;
+        margin: 10px;
+		min-width:250px;
+		max-width:500px;
+        background-color: white;
+      }
+
+      h1 {
+        font-size: 100px;
+        margin: 0;
+		font-family: 'Mrs Saint Delafield', cursive;
+		font-weight: normal;
+		font-size: 120px;
+		line-height: 108px;
+      }
+
+      h2 {
+        font-size: 24px;
+        margin-top: 10px;
+      }
+
+      h3 {
+        font-size: 18px;
+        margin-top: 0;
+      }
+
+      ul {
+		text-align: left;
+        margin: 0;
+        padding: 0;
+		margin-left:20px;
+      }
+
+      a {
+        color: #000;
+        text-decoration: none;
+      }
+
+      a:hover {
+        text-decoration: underline;
+      }
+	  
+	  p a {
+        text-decoration: underline;
+      }
+
+      p a:hover {
+        text-decoration: none;
+      }
+	  
+	  .twitterLink {
+		color: #26a7de;
+	  }
+	  
+	  .facebookLink {
+		color: #3b5998 ;
+	  }
+    </style>
+	
+	<script>
   /* Goodreads */
+	
+	let maxLength = 150;
+	let numberOfEntries = 3;
+	let lastTitle = "" ;
+	
     fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fwww.goodreads.com%2Fuser%2Fupdates_rss%2F8198766%3Fkey%3DDd_b0FL5w539ocG-fXNxba1boY57c_G7traIX2z6NyHUrhBn&api_key=csdqxkcjyaa5y9bfmi5zfolk4o5ltvxyoarnsilc')
       .then(response => response.json())
       .then(data => {
@@ -11,25 +128,37 @@
         let output = '';
         let count = 0;
         for (let i = 0; i < feed.length; i++) {
-          if (count === 6) {
+          if (count === numberOfEntries) {
             break;
           }
-          if (feed[i].description.includes("Joshua gave") && count < 6) {
+          if (feed[i].description.includes("Joshua gave") && count < numberOfEntries) {
             let title = feed[i].title.replace("Joshua added '", "").replace("'", "");
-            let description = feed[i].description.replace("Joshua gave", "I gave");
-            output += `
-              <h4><a href="${feed[i].link}" target="_blank">${title}</a></h4>
-              <p>${description}</p>
-            `;
-            count++;
+            let description = feed[i].description.split('\n')
+			let stars = " - " + description[2].split(" ")[8] + " stars<br />"
+			
+			if (description[8].length > maxLength-30) {
+				description[8] = description[8].substr(0, maxLength-30);
+				description[8] = description[8].substr(0, Math.min(description[8].length, description[8].lastIndexOf(" ")));
+				description[8] = description[8] + " ...";
+			}
+			
+			description[1] = "<img".concat(description[1].split("<img")[1]);
+			
+			if (title !== lastTitle) {
+				lastTitle = title;
+				
+				output += `
+				  <h4><a href="${feed[i].link}" target="_blank">${title}${stars}</a></h4>
+				  <p>${description[1]}${description[8]}</p>
+				`;
+				count++;
+			}
           }
         }
         document.getElementById('goodreads_feed').innerHTML = output;
       })
       .catch(error => console.error(error));
-  </script>
 	  
-  <script>
   /* Discerning History posts */
     fetch('https://api.rss2json.com/v1/api.json?rss_url=https%3A%2F%2Fdiscerninghistory.com%2Fauthor%2Fhornj%2Ffeed%2F&api_key=csdqxkcjyaa5y9bfmi5zfolk4o5ltvxyoarnsilc')
       .then(response => response.json())
@@ -37,10 +166,18 @@
         const feed = data.items;
         let output = '';
         let count = 0;
+		
         for (let i = 0; i < feed.length; i++) {
-          if (count === 6) {
+          if (count === numberOfEntries) {
             break;
           }
+		  
+		if (feed[i].description.length > maxLength) {
+			feed[i].description = feed[i].description.substr(0, maxLength);
+			feed[i].description = feed[i].description.substr(0, Math.min(feed[i].description.length, feed[i].description.lastIndexOf(" ")));
+			feed[i].description = feed[i].description + " ...";
+		}
+		
         count++;
         output += `
               <h4><a href="${feed[i].link}" target="_blank">${feed[i].title}</a></h4>
@@ -50,18 +187,41 @@
         document.getElementById('blog_feed').innerHTML = output;
       })
       .catch(error => console.error(error));
-  </script>
-</head>
-<body>
-	<div id="goodreads">
-		<h3>What I've Been Reading</h3>
-		<div id="goodreads_feed"></div>
-		<p>See all books</p>
-	</div>
-	</div id="blog_posts">
-		<h3>My Recent Blog Posts</h3>
-		<div id="blog_feed"></div>
-		<p>See all posts</p>
-	</div>
-</body>
+	</script>
+  </head>
+  <body>
+    <header>
+      <h1>Joshua Horn</h1>
+      <div class="tagline"><p><i>Historian, Programmer</i></p></div>
+    </header>
+    <main>
+      <div class="container">
+        <div class="column">
+          <h2>About Me</h2>
+		  <p>Currently working on a <a href="https://discerninghistory.com/2021/09/project-announcement-a-new-biography-of-william-bradford/">new full-length biography</a> of the Pilgrim and American founding father <strong>William Bradford.</strong></p>
+		  <p>I work as a computer programmer at <a href="https://datatek-net.com/">Datatek, Inc.</a> </p>
+		  <p>I live in Youngsville, NC with my wife and children in a house we built ourselves.</p>
+          <p>You can find me on <a href="http://twitter.com/hornj">Twitter</a>, <a href="https://www.facebook.com/joshua.e.horn">Facebook</a>, or send me an email via <a class="emailLink" href="http://discerninghistory.com/contact">this page.</a></p>
+		  
+		  <h2>Past Projects</h2>
+		  <ul>
+			  <li><a href="https://discerninghistory.com/store/civilwar/battles-of-the-civil-war-series/">Battles of the Civil War DVD series</a></li>
+			  <li><a href="https://allthingsliberty.com/2015/11/peter-muhlenberg-the-pastor-turned-soldier/"><i>Peter Muhlenberg: The Pastor Turned Soldier</i> in Journal of the American Revolution</a></li>
+			  <li><a href="https://civilwar150th.blogspot.com/">Civil War 150th Blog</a></li>
+			  <li><a href="https://reformingtoscripture.com/product-category/books/">Theology books at <i>Reforming to Scripture</i></a></li>
+		  </ul>
+        </div>
+        <div class="column">
+			<h2>What I've Been Reading</h2>
+			<div id="goodreads_feed"></div>
+			<p><a href="https://www.goodreads.com/author/show/4594405.Joshua_Horn">See all books</a></p>
+        </div>
+        <div class="column">
+			<h2>Recent Articles</h2>
+			<div id="blog_feed"></div>
+			<p><a href="https://discerninghistory.com/author/hornj/">See blog</a></p>
+        </div>
+      </div>
+    </main>
+  </body>
 </html>
