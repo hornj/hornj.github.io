@@ -151,7 +151,7 @@
             let description = feed[i].description.split('\n')
 			let stars = " - " + description[2].split(" ")[8] + " stars<br />"
 			
-			if (description[8].length > maxLength-30) {
+			if ((description.length > 7) && (description[8].length > maxLength-30)) {
 				description[8] = description[8].substr(0, maxLength-30);
 				description[8] = description[8].substr(0, Math.min(description[8].length, description[8].lastIndexOf(" ")));
 				description[8] = description[8] + " ...";
