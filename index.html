@@ -159,7 +159,7 @@
 			
 			description[1] = "<img".concat(description[1].split("<img")[1]);
 			
-			if (title !== lastTitle) {
+			if ((description.length > 7) && (title !== lastTitle)) {
 				lastTitle = title;
 				
 				output += `
